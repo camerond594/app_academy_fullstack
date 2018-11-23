@@ -3,22 +3,37 @@
 # Define a method that returns an array of only the even numbers in its argument
 # (an array of integers).
 def get_evens(arr)
+  arr.reduce([]) do |even_arr, num|
+    if num.even?
+      even_arr << num
+    else
+      even_arr
+    end
+  end
 end
 
 # Define a method that returns a new array of all the elements in its argument
 # doubled. This method should *not* modify the original array.
 def calculate_doubles(arr)
+  return arr.map { |int| int * 2 }
 end
 
 # Define a method that returns its argument with all the argument's elements
 # doubled. This method should modify the original array.
 def calculate_doubles!(arr)
+  return arr.map! { |int| int * 2 }
 end
 
 # Define a method that returns the sum of each element in its argument
 # multiplied by its index. array_sum_with_index([2, 9, 7]) => 23 because (2 * 0) +
 # (9 * 1) + (7 * 2) = 0 + 9 + 14 = 23
 def array_sum_with_index(arr)
+  idx = 0
+  arr.reduce(0) do |sum, curr_num|
+    sum += curr_num * idx
+    idx += 1
+    sum
+  end
 end
 
 # MEDIUM
@@ -27,6 +42,13 @@ end
 # the actual retail price without going over that price. Assume there is always
 # at least one bid below the retail price.
 def price_is_right(bids, actual_retail_price)
+  bids.reduce(0) do |closest_bid, curr_bid|
+    if curr_bid <= actual_retail_price && curr_bid > closest_bid
+      closest_bid = curr_bid
+    else
+      closest_bid
+    end
+  end
 end
 
 # Given an array of numbers, return an array of those numbers that have at least
