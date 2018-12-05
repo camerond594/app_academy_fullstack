@@ -4,6 +4,11 @@
 # factors of a given number.
 
 def factors(num)
+  all_facts = []
+  (1..num).each do |poss_fact|
+    all_facts << poss_fact if num % poss_fact == 0
+  end
+  all_facts.sort
 end
 
 # ### Bubble Sort
@@ -46,10 +51,38 @@ end
 # http://stackoverflow.com/questions/827649/what-is-the-ruby-spaceship-operator
 
 class Array
-  def bubble_sort!
+  def bubble_sort!(&block)
+    if !block_given?
+      while true
+        full_pass = true
+        self.each_with_index do |num, idx|
+          if idx == self.length - 1
+            next
+          elsif num > self[idx+1]
+            self[idx], self[idx+1] = self[idx+1], self[idx]
+            full_pass = false
+          end
+        end
+        return self if full_pass
+      end
+    else
+      while true
+        full_pass = true
+        self.each_with_index do |num, idx|
+          if idx == self.length - 1
+            next
+          elsif !block.call(num, self[idx+1])
+            self[idx], self[idx+1] = self[idx+1], self[idx]
+            full_pass = false
+          end
+        end
+        return self if full_pass
+      end
+    end
   end
 
   def bubble_sort(&prc)
+    prc.call
   end
 end
 
@@ -67,9 +100,30 @@ end
 # words).
 
 def substrings(string)
+  str_arr = string.split("")
+  length_count = 0
+  subs = []
+  while length_count < str_arr.length do
+    curr_sub = ""
+    str_arr.each_with_index do |char, idx|
+      next if idx <= length_count
+      curr_sub += char
+      subs << curr_sub
+    end
+    length_count += 1
+  end
+  return subs
 end
 
 def subwords(word, dictionary)
+  included_subwords = []
+  all_substring = substrings(word).uniq
+  all_substring.each do |substr|
+    if dictionary.include?(substr)
+      included_subwords << substr
+    end
+  end
+  return included_subwords
 end
 
 # ### Doubler
@@ -77,6 +131,7 @@ end
 # array with the original elements multiplied by two.
 
 def doubler(array)
+  array.map { |int| int * 2 }
 end
 
 # ### My Each
@@ -104,6 +159,12 @@ end
 
 class Array
   def my_each(&prc)
+    i = 0
+    while i < self.length
+      yield self[i]
+      i += 1
+    end
+    self
   end
 end
 

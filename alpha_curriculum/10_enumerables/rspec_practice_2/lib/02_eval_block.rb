@@ -1,3 +1,7 @@
+def eval_block(*args, &block)
+  block.call(*args)
+end
+
 # ### `eval_block`
 #
 # Write an `eval_block` method that takes some arguments and a block. It should
