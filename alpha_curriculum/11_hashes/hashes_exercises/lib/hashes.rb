@@ -3,11 +3,18 @@
 # Define a method that, given a sentence, returns a hash of each of the words as
 # keys with their lengths as values. Assume the argument lacks punctuation.
 def word_lengths(str)
+  words = str.split(" ")
+  length_hash = Hash.new(0)
+  words.each do |word|
+    length_hash[word] = word.length
+  end
+  length_hash
 end
 
 # Define a method that, given a hash with integers as values, returns the key
 # with the largest value.
 def greatest_key_by_val(hash)
+  hash.sort_by { |k, v| v }[-1][0]
 end
 
 # Define a method that accepts two hashes as arguments: an older inventory and a
@@ -18,11 +25,21 @@ end
 # update_inventory(march, april) => {rubies: 10, emeralds: 27, diamonds: 2,
 # moonstones: 5}
 def update_inventory(older, newer)
+  newer.each do |k, v|
+    older[k] = v
+  end
+  older
 end
 
 # Define a method that, given a word, returns a hash with the letters in the
 # word as keys and the frequencies of the letters as values.
 def letter_counts(word)
+  frequency_count = Hash.new(0)
+
+  word.split("").each do |char|
+    frequency_count[char] += 1
+  end
+  frequency_count
 end
 
 # MEDIUM
@@ -30,17 +47,33 @@ end
 # Define a method that, given an array, returns that array without duplicates.
 # Use a hash! Don't use the uniq method.
 def my_uniq(arr)
+  frequency_count = Hash.new(0)
+
+  arr.each { |el| frequency_count[el] = 1 }
+  frequency_count.keys
 end
 
 # Define a method that, given an array of numbers, returns a hash with "even"
 # and "odd" as keys and the frequency of each parity as values.
 def evens_and_odds(numbers)
+  parity_hash = Hash.new(0)
+  numbers.each do |number|
+    parity_hash[:even] += 1 if number.even?
+    parity_hash[:odd] += 1 if number.odd?
+  end
+  parity_hash
 end
 
 # Define a method that, given a string, returns the most common vowel. Do
-# not worry about ordering in the case of a tie. Assume all letters are 
+# not worry about ordering in the case of a tie. Assume all letters are
 # lower case.
+VOWELS = ["a", "e", "i", "o", "u"]
 def most_common_vowel(string)
+  num_vowels = Hash.new(0)
+  string.split("").each do |char|
+    num_vowels[char] += 1 if VOWELS.include?(char)
+  end
+  num_vowels.sort_by { |k, v| v }[-1][0]
 end
 
 # HARD
