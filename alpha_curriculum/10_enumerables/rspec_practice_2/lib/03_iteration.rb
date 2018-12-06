@@ -71,7 +71,7 @@ class Array
         self.each_with_index do |num, idx|
           if idx == self.length - 1
             next
-          elsif !block.call(num, self[idx+1])
+          elsif block.call(num, self[idx+1]) == 1
             self[idx], self[idx+1] = self[idx+1], self[idx]
             full_pass = false
           end
@@ -81,8 +81,9 @@ class Array
     end
   end
 
-  def bubble_sort(&prc)
-    prc.call
+  def bubble_sort()
+    copy_array = Marshal.load(Marshal.dump(self))
+    copy_array.bubble_sort!
   end
 end
 
@@ -183,12 +184,23 @@ end
 
 class Array
   def my_map(&prc)
+    [].tap do |new_array|
+      self.my_each { |element| new_array << prc.call(element) }
+    end
   end
 
   def my_select(&prc)
+    [].tap do |new_array|
+      self.my_each { |element| new_array << element if prc.call(element) }
+    end
   end
 
   def my_inject(&blk)
+    start_value = self[0]
+    self[1..-1].my_each do |element|
+      start_value = blk.call(start_value, element)
+    end
+    start_value
   end
 end
 
@@ -202,4 +214,5 @@ end
 # ```
 
 def concatenate(strings)
+  strings.inject(:+)
 end
