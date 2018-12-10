@@ -86,6 +86,12 @@ end
 # fall_and_winter_birthdays(students_with_birthdays) => [ ["Bertie", "Dottie"],
 # ["Bertie", "Warren"], ["Dottie", "Warren"] ]
 def fall_and_winter_birthdays(students)
+  fall_winter = Hash.new(0)
+  combinations = []
+  students.each do |student, month|
+    fall_winter[student] = month if month >= 7
+  end
+  fall_winter.keys.to_a.combination(2)
 end
 
 # Define a method that, given an array of specimens, returns the biodiversity
@@ -94,6 +100,15 @@ end
 # "cat", "cat"]) => 1 biodiversity_index(["cat", "leopard-spotted ferret",
 # "dog"]) => 9
 def biodiversity_index(specimens)
+  species_count = Hash.new(0)
+  specimens.each do |specimen|
+    species_count[specimen] += 1
+  end
+  number_of_species = species_count.length
+  arr_count = species_count.sort_by {|k, v| v }
+  largest_population_size = arr_count[species_count.length - 1][1]
+  smallest_population_size = arr_count[0][1]
+  number_of_species**2 * (smallest_population_size/largest_population_size)
 end
 
 # Define a method that, given the string of a respectable business sign, returns
@@ -102,7 +117,20 @@ end
 # can_tweak_sign("We're having a yellow ferret sale for a good cause over at the
 # pet shop!", "Leopard ferrets forever yo") => true
 def can_tweak_sign?(normal_sign, vandalized_sign)
+  normal_char_count = character_count(normal_sign)
+  vandalized_char_count = character_count(vandalized_sign)
+  can_tweak = true
+  vandalized_char_count.each do |char, count|
+    can_tweak = false if normal_char_count[char.downcase] < count
+  end
+  can_tweak
 end
 
 def character_count(str)
+  char_count = Hash.new(0)
+  str.split("").each do |char|
+    next if char == " "
+    char_count[char.downcase] += 1
+  end
+  char_count
 end
