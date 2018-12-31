@@ -57,9 +57,26 @@ end
 # 2, 4, 8, 16) and the others have fewer than five factors. Consider writing a
 # helper method num_factors
 def at_least_n_factors(numbers, n)
+  numbers.reduce([]) do |num_factors, curr_num|
+    if num_factors(curr_num) >= n
+      num_factors << curr_num
+    else
+      num_factors
+    end
+  end
 end
 
 def num_factors(number)
+  return 1 if number < 2
+  (2..number).reduce([]) do |factors, curr_num|
+    if curr_num == number
+      return factors.count + 2
+    elsif number % curr_num == 0
+      factors << curr_num
+    else
+      factors
+    end
+  end
 end
 
 # HARD
@@ -68,9 +85,42 @@ end
 # words whose vowels appear in order. You may wish to write a helper method:
 # ordered_vowel_word?
 def ordered_vowel_words(words)
+  words.reduce([]) do |ord_vowels, curr_word|
+    if ordered_vowel_word?(curr_word) == true
+      ord_vowels << curr_word
+    else
+      ord_vowels
+    end
+  end
 end
 
+VOWELS = ["a", "e", "i", "o", "u"]
 def ordered_vowel_word?(word)
+  prev_ind = -1
+  word_arr = word.split("")
+  word_arr.reduce([]) do |vowels, curr_char|
+    # We only care if the curr_char is a vowel, not a consonant
+    if VOWELS.include?(curr_char)
+      curr_ind = VOWELS.index(curr_char)
+      # This is our first vowel
+      if prev_ind < 0
+        prev_ind = curr_ind
+        vowels << curr_char
+      else
+        # If our current vowel is "greater than" the previous vowel
+        if curr_ind > prev_ind
+          prev_ind = curr_ind
+          vowels << curr_char
+        # If our current vowel is "less than" the previous, then it is not ordered
+        else
+          return false
+        end
+      end
+    else
+      vowels
+    end
+  end
+  return true
 end
 
 # Given an array of numbers, return an array of all the products remaining when
@@ -86,7 +136,23 @@ end
 # 10, because you take out 3, leaving 1 * 2 * 5 6, because you take out 5,
 # leaving 1 * 2 * 3
 def products_except_me(numbers)
+  product_idx = 0
+  new_numbers = []
+  while product_idx < 4
+    new_numbers << array_product(numbers, product_idx)
+    product_idx += 1
+  end
+  return new_numbers
 end
 
-def array_product(array)
+def array_product(array, product_idx)
+  idx = 0
+  product = 1
+  while idx < 4
+    if idx != product_idx
+      product *= array[idx]
+    end
+    idx += 1
+  end
+  return product
 end
