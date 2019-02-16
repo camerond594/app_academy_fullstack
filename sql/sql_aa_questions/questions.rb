@@ -138,6 +138,31 @@ class User
     QuestionLike.liked_questions_for_user_id(@id)
   end
 
+  def average_karma
+    avg_karma_data = QuestionDBConnection.instance.execute(<<-SQL, @id)
+      SELECT
+        CASE WHEN COUNT(q_likes.q_id) = 0
+          THEN 0
+        ELSE
+          CAST(SUM(q_likes.num_likes) AS FLOAT) / COUNT(q_likes.q_id)
+        END AS average
+      FROM
+        (SELECT
+          COUNT(ql.user_id) AS num_likes, q.id AS q_id
+        FROM
+          questions AS q LEFT JOIN question_likes AS ql
+            ON q.id = ql.question_id
+        WHERE
+          q.author_id = ?
+        GROUP BY
+          ql.question_id) AS q_likes
+    SQL
+
+    return nil unless avg_karma_data.length > 0
+    
+    avg_karma_data[0]['average']
+  end
+
 end
 
 class QuestionFollower
