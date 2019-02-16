@@ -56,7 +56,7 @@ CREATE TABLE question_likes (
 );
 
 INSERT INTO users('fname','lname')
-VALUES ('John','Smith'),('Crazy','Boy');
+VALUES ('John','Smith'),('Crazy','Boy'), ('Cameron', 'Day'), ('Test', 'User');
 
 INSERT INTO questions('title','body','author_id')
 VALUES ('Some','Handsome?',1),('dumb one','why am i a boy?',2),
@@ -64,7 +64,7 @@ VALUES ('Some','Handsome?',1),('dumb one','why am i a boy?',2),
 ('Test2','Test again?',1),('Test3','Test again again?',2);
 
 INSERT INTO question_followers('question_id','user_id')
-VALUES (1,2),(2,1),(1,1);
+VALUES (1,1),(1,2),(1,3),(1,4),(2,1),(2,2),(2,3),(3,1),(3,2),(4,1);
 
 INSERT INTO replies('reply','author_id','question_id','parent_id')
 VALUES ('YES!',2,1,NULL),('because of genetics?',1,2,NULL),('huh?',1,1,1);

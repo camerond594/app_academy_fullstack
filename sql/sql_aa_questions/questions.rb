@@ -52,6 +52,14 @@ class Question
     author_questions.map { |data| Question.new(data) }
   end
 
+  def self.most_followed(n)
+    QuestionFollower.most_followed_questions(n)
+  end
+
+  def self.most_liked(n)
+    QuestionLike.most_liked_questions(n)
+  end
+
   def author
     User.find_by_id(@author_id)
   end
@@ -62,6 +70,14 @@ class Question
 
   def followers
     QuestionFollower.followers_for_question_id(@id)
+  end
+
+  def likers
+    QuestionLike.likers_for_question_id(@id)
+  end
+
+  def num_likes
+    QuestionLike.num_likes_for_question_id(@id)
   end
 
 end
@@ -116,6 +132,10 @@ class User
 
   def followed_questions
     QuestionFollower.followed_questions_for_user_id(@id)
+  end
+
+  def liked_questions
+    QuestionLike.liked_questions_for_user_id(@id)
   end
 
 end
@@ -179,6 +199,26 @@ class QuestionFollower
     question_follower_data.map { |data| Question.new(data) }
   end
 
+  def self.most_followed_questions(n)
+    question_follower_data =  QuestionDBConnection.instance.execute(<<-SQL, n)
+      SELECT
+        *, COUNT(question_followers.user_id)
+      FROM
+        question_followers JOIN questions
+        ON
+          questions.id = question_followers.question_id
+      GROUP BY
+        question_followers.question_id
+      ORDER BY
+        COUNT(question_followers.user_id) DESC
+      LIMIT ?
+    SQL
+
+    return nil unless question_follower_data.length > 0
+
+    question_follower_data.map { |data| Question.new(data) }
+  end
+
 end
 
 class QuestionLike
@@ -204,6 +244,75 @@ class QuestionLike
     return nil unless question_like_data.length > 0
 
     QuestionLike.new(question_like_data[0])
+  end
+
+  def self.likers_for_question_id(question_id)
+    question_like_data = QuestionDBConnection.instance.execute(<<-SQL, question_id)
+      SELECT
+        u.*
+      FROM
+        question_likes AS ql JOIN users AS u
+          ON ql.user_id = u.id
+      WHERE
+        question_id = ?
+    SQL
+
+    return nil unless question_like_data.length > 0
+
+    question_like_data.map { |data| User.new(data) }
+  end
+
+  def self.num_likes_for_question_id(question_id)
+    num_likes = QuestionDBConnection.instance.execute(<<-SQL, question_id)
+      SELECT
+        COUNT(u.id) AS likes
+      FROM
+        question_likes AS ql JOIN users AS u
+          ON ql.user_id = u.id
+      WHERE
+        question_id = ?
+    SQL
+
+    return nil unless num_likes.length > 0
+    num_likes[0]['likes']
+  end
+
+  def self.liked_questions_for_user_id(user_id)
+    liked_questions = QuestionDBConnection.instance.execute(<<-SQL, user_id)
+      SELECT
+        q.*
+      FROM
+        question_likes AS ql JOIN questions AS q
+          ON ql.question_id = q.id
+      WHERE
+        user_id = ?
+      GROUP BY
+        q.id
+    SQL
+
+    return nil unless liked_questions.length > 0
+
+    liked_questions.map { |data| Question.new(data) }
+  end
+
+  def self.most_liked_questions(n)
+    question_like_data =  QuestionDBConnection.instance.execute(<<-SQL, n)
+      SELECT
+        q.*, COUNT(ql.user_id)
+      FROM
+        question_likes AS ql JOIN questions AS q
+        ON
+          q.id = ql.question_id
+      GROUP BY
+        ql.question_id
+      ORDER BY
+        COUNT(ql.user_id) DESC
+      LIMIT ?
+    SQL
+
+    return nil unless question_like_data.length > 0
+
+    question_like_data.map { |data| Question.new(data) }
   end
 end
 
