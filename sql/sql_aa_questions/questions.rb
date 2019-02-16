@@ -60,6 +60,22 @@ class Question
     QuestionLike.most_liked_questions(n)
   end
 
+  def save
+    if @id.nil?
+      QuestionDBConnection.instance.execute(<<-SQL, @title, @author_id, @body)
+        INSERT INTO questions('title', 'author_id', 'body')
+        VALUES ?, ?, ?
+      SQL
+      @id = QuestionDBConnection.instance.last_insert_row_id
+    else
+      QuestionDBConnection.instance.execute(<<-SQL, @title, @body, @id)
+        UPDATE questions
+        SET title = ?, body = ?
+        WHERE id = ?
+      SQL
+    end
+  end
+
   def author
     User.find_by_id(@author_id)
   end
@@ -159,8 +175,24 @@ class User
     SQL
 
     return nil unless avg_karma_data.length > 0
-    
+
     avg_karma_data[0]['average']
+  end
+
+  def save
+    if @id.nil?
+      QuestionDBConnection.instance.execute(<<-SQL, @fname, @lname)
+        INSERT INTO users('fname', 'lname')
+        VALUES ?, ?
+      SQL
+      @id = QuestionDBConnection.instance.last_insert_row_id
+    else
+      QuestionDBConnection.instance.execute(<<-SQL, @fname, @lname, @id)
+        UPDATE users
+        SET fname = ?, lname = ?
+        WHERE id = ?
+      SQL
+    end
   end
 
 end
@@ -411,6 +443,22 @@ class Reply
     return nil unless child_replies.length > 0
 
     child_replies.map { |data| Reply.new(data) }
+  end
+
+  def save
+    if @id.nil?
+      QuestionDBConnection.instance.execute(<<-SQL, @reply, @parent_id, @question_id, @author_id)
+        INSERT INTO replies('reply', 'parent_id', 'question_id', 'author_id')
+        VALUES ?, ?, ?, ?
+      SQL
+      @id = QuestionDBConnection.instance.last_insert_row_id
+    else
+      QuestionDBConnection.instance.execute(<<-SQL, @reply, @id)
+        UPDATE replies
+        SET reply = ?
+        WHERE id = ?
+      SQL
+    end
   end
 
   def author
